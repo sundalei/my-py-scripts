@@ -4,3 +4,4 @@
 .settings/
 .ejbModule/
 node_modules/
+.idea/
