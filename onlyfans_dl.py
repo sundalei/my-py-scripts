@@ -13,13 +13,13 @@ Configuration variables:
 - skip_accounts: List of accounts to skip downloading from
 """
 
-import os
-import sys
-import json
-import shutil
-import pathlib
 import hashlib
+import json
+import pathlib
+import shutil
+import sys
 from datetime import datetime, timedelta
+
 import requests
 import urllib3
 
