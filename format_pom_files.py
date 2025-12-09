@@ -9,6 +9,7 @@ import re
 import argparse
 import sys
 
+
 def replace_tabs_with_spaces(content, spaces_per_tab=2):
   """
   Replace tabs with specified number of spaces in content.
