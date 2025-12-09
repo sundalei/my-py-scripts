@@ -15,16 +15,16 @@ def replace_tabs_with_spaces(content, spaces_per_tab=2):
     Replace tabs with specified number of spaces in content.
     Handles mixed indentation properly.
     """
-    lines = content.split('\n')
+    lines = content.split("\n")
     result_lines = []
 
     for line in lines:
         # Find leading whitespaces
-        leading_whitespace = re.match(r'^(\s*)', line).group(1)
+        leading_whitespace = re.match(r"^(\s*)", line).group(1)
 
-        if '\t' in leading_whitespace:
+        if "\t" in leading_whitespace:
             # Count tabs and spaces in leading whitespace
-            tab_count = leading_whitespace.count('\t')
+            tab_count = leading_whitespace.count("\t")
             space_count = len(leading_whitespace) - tab_count
 
             # Convert tabs to spaces
