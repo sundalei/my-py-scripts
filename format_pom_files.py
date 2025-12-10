@@ -94,6 +94,9 @@ def find_and_format_pom_files(root_dir, spaces_per_tab=2, dry_run=False, verbose
 
 
 def main():
+    """
+    Main function to parse arguments and run the formatter.
+    """
     parser = argparse.ArgumentParser(
         description="Format all descendant pom.xml files by replacing tabs with 2 spaces."
     )

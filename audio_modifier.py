@@ -1,10 +1,15 @@
+"""
+Audio Modifier - A tool for reading and modifying FLAC audio file metadata
+"""
 from mutagen.flac import FLAC
+from mutagen import MutagenError
 
-flac_path = "/Users/sundalei/Downloads/Taylor Swift_1989.02.Blank Space.flac"
+FLAC_PATH = "/Users/sundalei/Downloads/Taylor Swift_1989.02.Blank Space.flac"
 
 try:
-    flac = FLAC(flac_path)
+    flac = FLAC(FLAC_PATH)
     print(flac.pictures)
     print(flac.pprint())
-except Exception as e:
+except MutagenError as e:
     print(e)
+    print(type(e))
