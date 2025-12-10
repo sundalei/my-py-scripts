@@ -77,8 +77,7 @@ print(timedelta)
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
-            "Usage: " + sys.argv[0] + " <list of profiles / all> "
-            "<max age (optional)>"
+            "Usage: " + sys.argv[0] + " <list of profiles / all> <max age (optional)>"
         )
         print("max age must be an integer. number of days back from today.")
         print(
@@ -90,7 +89,6 @@ if __name__ == "__main__":
             "(See readme)."
         )
         print(
-            "Update Browser User Agent (Every time it updates): "
-            "https://ipchicken.com/"
+            "Update Browser User Agent (Every time it updates): https://ipchicken.com/"
         )
         sys.exit()
