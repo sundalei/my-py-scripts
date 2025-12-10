@@ -28,16 +28,16 @@ def replace_tabs_with_spaces(content, spaces_per_tab=2):
             space_count = len(leading_whitespace) - tab_count
 
             # Convert tabs to spaces
-            new_leading_whitespace = ' ' * (tab_count * spaces_per_tab + space_count)
+            new_leading_whitespace = " " * (tab_count * spaces_per_tab + space_count)
 
             # Replace the leading whitespace
-            line = new_leading_whitespace + line[len(leading_whitespace):]
+            line = new_leading_whitespace + line[len(leading_whitespace) :]
 
         # Also replace any tabs in the rest of the line (though unusual in XML)
-        line = line.replace('\t', ' ' * spaces_per_tab)
+        line = line.replace("\t", " " * spaces_per_tab)
         result_lines.append(line)
 
-    return '\n'.join(result_lines)
+    return "\n".join(result_lines)
 
 
 def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
@@ -45,7 +45,7 @@ def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
     Format a single pom.xml file by replacing tabs with spaces.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             original_content = f.read()
 
         formatted_content = replace_tabs_with_spaces(original_content, spaces_per_tab)
@@ -61,7 +61,7 @@ def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
             return True
 
         # Write the formatted content back
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(formatted_content)
 
         print(f"Formatted: {file_path}")
@@ -80,10 +80,10 @@ def find_and_format_pom_files(root_dir, spaces_per_tab=2, dry_run=False, verbose
 
     for root, dirs, files in os.walk(root_dir):
         # Skip hidden directories (like .git)
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
 
         for file in files:
-            if file.lower() == 'pom.xml':
+            if file.lower() == "pom.xml":
                 file_path = os.path.join(root, file)
                 total_files += 1
 
@@ -111,9 +111,7 @@ def main():
         action="store_true",
         help="Show what would be changed without actually making changes",
     )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show detailed output"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Show detailed output")
     parser.add_argument(
         "--exclude-dirs",
         nargs="+",
