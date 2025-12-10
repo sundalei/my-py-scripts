@@ -66,7 +66,7 @@ def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
 
         print(f"Formatted: {file_path}")
         return True
-    except Exception as e:
+    except OSError as e:
         print(f"Error processing {file_path}: {e}", file=sys.stderr)
         return False
 
