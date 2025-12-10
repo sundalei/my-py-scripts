@@ -101,29 +101,33 @@ def main():
         "directory",
         nargs="?",
         default=".",
-        help="Directory to search for pom.xml files (default: current directory)"
+        help="Directory to search for pom.xml files (default: current directory)",
     )
     parser.add_argument(
-        "--spaces",
-        type=int,
-        default=2,
-        help="Number of spaces per tab (default: 2)"
+        "--spaces", type=int, default=2, help="Number of spaces per tab (default: 2)"
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would be changed without actually making changes"
+        help="Show what would be changed without actually making changes",
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Show detailed output"
+        "--verbose", action="store_true", help="Show detailed output"
     )
     parser.add_argument(
         "--exclude-dirs",
         nargs="+",
-        default=[".git", ".svn", ".hg", "target", "node_modules", "build", ".idea", ".vscode"],
-        help="Directory to exclude from search"
+        default=[
+            ".git",
+            ".svn",
+            ".hg",
+            "target",
+            "node_modules",
+            "build",
+            ".idea",
+            ".vscode",
+        ],
+        help="Directory to exclude from search",
     )
 
     args = parser.parse_args()
@@ -144,10 +148,7 @@ def main():
     print("---")
 
     total_files, formatted_count = find_and_format_pom_files(
-        args.directory,
-        args.spaces,
-        args.dry_run,
-        args.verbose
+        args.directory, args.spaces, args.dry_run, args.verbose
     )
 
     print("---")
