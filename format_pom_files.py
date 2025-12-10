@@ -4,9 +4,9 @@ Script to format all descendant pom.xml files in a folder
 by replacing tabs with 2 whitespace indents
 """
 
+import argparse
 import os
 import re
-import argparse
 import sys
 
 

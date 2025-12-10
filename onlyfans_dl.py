@@ -42,7 +42,7 @@ VERBOSITY = 2
 # Download Directory. Use CMD if null
 DOWNLOAD_DIR = ""
 # List of accounts to skip
-SKIP_ACCOUNTS = []
+SKIP_ACCOUNTS: list[str] = []
 
 # Separate photos into subdirectories by post/album
 # Single photo posts are not put into subdirectories
