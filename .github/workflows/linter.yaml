@@ -10,19 +10,19 @@ on: # yamllint disable-line rule:truthy
 permissions: {}
 
 jobs:
-  lint:
-    name: Lint
+  lint-and-fix:
+    name: Lint and fix
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
-      packages: read
-      # To report Github Actions status checks
+      # To write linting fixes
+      contents: write
+      # To write Super-linter status checks
       statuses: write
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
@@ -35,3 +35,15 @@ jobs:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FIX_PYTHON_RUFF_FORMAT: true
+          FIX_YAML_PRETTIER: true
+      
+      - name: Commit and push linting fixes
+        if: >
+          github.event_name == 'pull_request' &&
+          github.ref_name != github.event.repository.default_branch
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "chore: fix linting issues"
+          commit_user_name: super-linter
+          commit_user_email: super-linter@super-linter.dev
