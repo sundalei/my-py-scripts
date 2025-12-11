@@ -10,7 +10,7 @@ on: # yamllint disable-line rule:truthy
 permissions: {}
 
 jobs:
-  build:
+  lint:
     name: Lint
     runs-on: ubuntu-latest
 
@@ -29,13 +29,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Run a one-line script
-        run: echo Hello, world!
-
       - name: Super-linter
         uses: super-linter/super-linter@v8.3.0
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LOG_LEVEL: DEBUG
           FIX_PYTHON_RUFF_FORMAT: true
