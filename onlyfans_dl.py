@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-OnlyFans Downloader - A tool to download content from OnlyFans accounts
+Tool to download content from OnlyFans accounts
 
 Configuration variables:
 - user_id: User ID for authentication
@@ -15,6 +15,7 @@ Configuration variables:
 
 import hashlib
 import json
+import os
 import pathlib
 import shutil
 import sys
@@ -40,7 +41,7 @@ SESSION_COOKIE = ""
 # 4 = print skipped files that already exist
 VERBOSITY = 2
 # Download Directory. Use CMD if null
-DOWNLOAD_DIR = ""
+DOWNLOAD_DIR = "/Users/sundalei/Downloads"
 # List of accounts to skip
 SKIP_ACCOUNTS: list[str] = []
 
@@ -92,3 +93,10 @@ if __name__ == "__main__":
             "Update Browser User Agent (Every time it updates): https://ipchicken.com/"
         )
         sys.exit()
+
+    if DOWNLOAD_DIR:
+        try:
+            os.chdir(DOWNLOAD_DIR)
+        except OSError:
+            print("Unable to use DOWNLOAD_DIR: " + DOWNLOAD_DIR)
+    print("Download directory: " + os.getcwd())
