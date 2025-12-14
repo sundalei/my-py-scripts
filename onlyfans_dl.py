@@ -75,6 +75,12 @@ print(hashlib)
 print(datetime)
 print(timedelta)
 
+
+def get_subscriptions():
+    """Get a list of all subscriptions"""
+    pass
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: " + sys.argv[0] + " <list of profiles / all> <max age (optional)>")
@@ -146,3 +152,6 @@ if __name__ == "__main__":
         MAX_AGE = int((datetime.today() - timedelta(int(PROFILE_LIST.pop(-1)))).timestamp())
         from_time = datetime.fromtimestamp(int(MAX_AGE), tz=timezone.utc)
         print("\nGetting posts newer than " + str(from_time) + " UTC")
+
+    if PROFILE_LIST[0] == "all":
+        get_subscriptions()
