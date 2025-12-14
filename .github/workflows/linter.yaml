@@ -41,7 +41,7 @@ jobs:
           FIX_YAML_PRETTIER: true
           FIX_JSON_PRETTIER: true
           FIX_BIOME_FORMAT: true
-      
+
       - name: Commit and push linting fixes
         if: >
           github.event_name == 'pull_request' &&
