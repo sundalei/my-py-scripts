@@ -19,7 +19,7 @@ import os
 import pathlib
 import shutil
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import requests
 import urllib3
@@ -77,21 +77,11 @@ print(timedelta)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(
-            "Usage: " + sys.argv[0] + " <list of profiles / all> <max age (optional)>"
-        )
+        print("Usage: " + sys.argv[0] + " <list of profiles / all> <max age (optional)>")
         print("max age must be an integer. number of days back from today.")
-        print(
-            "if max age = 0, the script will find the latest date amongst "
-            "the files for each profile independantly."
-        )
-        print(
-            "Make sure to update the session variables at the top of this script "
-            "(See readme)."
-        )
-        print(
-            "Update Browser User Agent (Every time it updates): https://ipchicken.com/"
-        )
+        print("if max age = 0, the script will find the latest date amongst the files for each profile independantly.")
+        print("Make sure to update the session variables at the top of this script (See readme).")
+        print("Update Browser User Agent (Every time it updates): https://ipchicken.com/")
         sys.exit()
 
     if DOWNLOAD_DIR:
@@ -112,8 +102,47 @@ if __name__ == "__main__":
         "static_param": "r0COhCenVY6tUCrcnkbwz727f1m0UHsv",
         "remove_headers": ["user_id"],
         "checksum_indexes": [
-            1,1,1,2,2,5,5,6,6,7,7,11,12,12,13,14,14,16,17,20,20,20,21,23,24,25,25,25,29,30,31,39
+            1,
+            1,
+            1,
+            2,
+            2,
+            5,
+            5,
+            6,
+            6,
+            7,
+            7,
+            11,
+            12,
+            12,
+            13,
+            14,
+            14,
+            16,
+            17,
+            20,
+            20,
+            20,
+            21,
+            23,
+            24,
+            25,
+            25,
+            25,
+            29,
+            30,
+            31,
+            39,
         ],
-        "checksum_constant":118
+        "checksum_constant": 118,
     }
-    print(dynamic_rules)
+    PROFILE_LIST = sys.argv
+    PROFILE_LIST.pop(0)
+    if PROFILE_LIST[-1] == "0":
+        LATEST = 1
+        PROFILE_LIST.pop(-1)
+    if len(PROFILE_LIST) > 1 and PROFILE_LIST[-1].isnumeric():
+        MAX_AGE = int((datetime.today() - timedelta(int(PROFILE_LIST.pop(-1)))).timestamp())
+        from_time = datetime.fromtimestamp(int(MAX_AGE), tz=timezone.utc)
+        print("\nGetting posts newer than " + str(from_time) + " UTC")
