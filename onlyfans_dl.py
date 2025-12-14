@@ -100,3 +100,20 @@ if __name__ == "__main__":
         except OSError:
             print("Unable to use DOWNLOAD_DIR: " + DOWNLOAD_DIR)
     print("Download directory: " + os.getcwd())
+    # Rules for the signed headers
+    dynamic_rules = {
+        "end": "67a0ec50",
+        "start": "36587",
+        "format": "36587:{}:{:x}:67a0ec50",
+        "prefix": "36587",
+        "suffix": "67a0ec50",
+        "revision": "202502031617-af2daeeb87",
+        "app_token": "33d57ade8c02dbc5a333db99ff9ae26a",
+        "static_param": "r0COhCenVY6tUCrcnkbwz727f1m0UHsv",
+        "remove_headers": ["user_id"],
+        "checksum_indexes": [
+            1,1,1,2,2,5,5,6,6,7,7,11,12,12,13,14,14,16,17,20,20,20,21,23,24,25,25,25,29,30,31,39
+        ],
+        "checksum_constant":118
+    }
+    print(dynamic_rules)
