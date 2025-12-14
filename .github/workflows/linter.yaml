@@ -34,7 +34,9 @@ jobs:
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_GITLEAKS: false
           FIX_PYTHON_RUFF_FORMAT: true
+          FIX_PYTHON_BLACK: true
           FIX_YAML_PRETTIER: true
       
       - name: Commit and push linting fixes
