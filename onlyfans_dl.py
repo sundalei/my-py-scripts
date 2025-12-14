@@ -19,7 +19,7 @@ import os
 import pathlib
 import shutil
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import requests
 import urllib3
@@ -116,4 +116,12 @@ if __name__ == "__main__":
         ],
         "checksum_constant":118
     }
-    print(dynamic_rules)
+    PROFILE_LIST = sys.argv
+    PROFILE_LIST.pop(0)
+    if PROFILE_LIST[-1] == "0":
+        LATEST = 1
+        PROFILE_LIST.pop(-1)
+    if len(PROFILE_LIST) > 1 and PROFILE_LIST[-1].isnumeric():
+        MAX_AGE = int((datetime.today() - timedelta(int(PROFILE_LIST.pop(-1)))).timestamp())
+        from_time = datetime.fromtimestamp(int(MAX_AGE), tz=timezone.utc)
+        print("\nGetting posts newer than " + str(from_time) + " UTC")
