@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   lint-and-fix:
-    name: Lint and fix
+    name: Lint and Fix
     runs-on: ubuntu-latest
 
     permissions:
@@ -27,6 +27,7 @@ jobs:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
           fetch-depth: 0
+          token: ${{ secrets.PAT_WITH_WORKFLOW_ACCESS }}
 
       - name: Super-linter
         uses: super-linter/super-linter@v8.3.0
@@ -46,3 +47,5 @@ jobs:
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "chore: fix linting issues"
+          commit_user_name: super-linter
+          commit_user_email: super-linter@super-linter.dev
