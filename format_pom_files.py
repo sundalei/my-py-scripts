@@ -97,18 +97,14 @@ def main():
     """
     Main function to parse arguments and run the formatter.
     """
-    parser = argparse.ArgumentParser(
-        description="Format all descendant pom.xml files by replacing tabs with 2 spaces."
-    )
+    parser = argparse.ArgumentParser(description="Format all descendant pom.xml files by replacing tabs with 2 spaces.")
     parser.add_argument(
         "directory",
         nargs="?",
         default=".",
         help="Directory to search for pom.xml files (default: current directory)",
     )
-    parser.add_argument(
-        "--spaces", type=int, default=2, help="Number of spaces per tab (default: 2)"
-    )
+    parser.add_argument("--spaces", type=int, default=2, help="Number of spaces per tab (default: 2)")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -148,9 +144,7 @@ def main():
     print(f"Replacing tabs with {args.spaces} spaces")
     print("---")
 
-    total_files, formatted_count = find_and_format_pom_files(
-        args.directory, args.spaces, args.dry_run, args.verbose
-    )
+    total_files, formatted_count = find_and_format_pom_files(args.directory, args.spaces, args.dry_run, args.verbose)
 
     print("---")
     print(f"Total pom.xml files found: {total_files}")
