@@ -76,9 +76,39 @@ print(datetime)
 print(timedelta)
 
 
+def show_age(ts: str):
+    """Show the age of a timestamp"""
+    print("show age:", ts)
+    tmp = ts.split(".")
+    part0 = int(tmp[0])
+    dt_obj = datetime.fromtimestamp(part0, tz=timezone.utc)
+    return dt_obj.strftime("%Y-%m-%d")
+
+
+def api_request(api_type: str):
+    posts_limit = 50
+    age = ""
+    get_params = {
+        "limit": str(posts_limit),
+        "order": "publish_date_asc",
+    }
+    
+    if api_type == "messages":
+        get_params["order"] = "desc"
+    if api_type == "subscriptions":
+        get_params["type"] = "active"
+    if MAX_AGE:
+        if api_type != "messages" and api_type != "subscriptions" and api_type != "purchased":
+            get_params["afterPublishTime"] = str(MAX_AGE) + ".000000"
+            age = " age " + str(show_age(get_params["afterPublishTime"]))
+
+    print(get_params)
+
+
+
 def get_subscriptions():
     """Get a list of all subscriptions"""
-    pass
+    api_request("subscriptions")
 
 
 if __name__ == "__main__":
