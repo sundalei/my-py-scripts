@@ -80,7 +80,7 @@ API_HEADER = {
     "x-bc": X_BC,
     "user-id": USER_ID,
     "Cookie": "auh_id=" + USER_ID + "; sess=" + SESSION_COOKIE,
-    "Referer": "https://onlyfans.com/"
+    "Referer": "https://onlyfans.com/",
 }
 
 
@@ -93,7 +93,7 @@ def create_signed_headers(link, queryParams):
     if queryParams:
         query = "&".join("=".join((key, value)) for (key, value) in queryParams.items())
         path = f"{path}?{query}"
-    
+
     unixtime = str(int(datetime.now().timestamp()))
     msg = "\n".join([dynamic_rules["static_param"], unixtime, path, str(USER_ID)])
     message = msg.encode("utf-8")
@@ -126,7 +126,7 @@ def api_request(endpoint, api_type):
         "limit": str(posts_limit),
         "order": "publish_date_asc",
     }
-    
+
     if api_type == "messages":
         get_params["order"] = "desc"
     if api_type == "subscriptions":
@@ -144,8 +144,8 @@ def api_request(endpoint, api_type):
     if status.ok:
         list_base = status.json()
     else:
-        return json.loads("{\"error\":{\"message\":\"http " + str(status.status_code) + "\"}}")
-    
+        return json.loads('{"error":{"message":"http ' + str(status.status_code) + '"}}')
+
     return list_base
 
 
@@ -175,7 +175,40 @@ if __name__ == "__main__":
         "app_token": "33d57ade8c02dbc5a333db99ff9ae26a",
         "static_param": "7HMjX3tp4B4JJDOryHAMCUIQCtmGq69D",
         "remove_headers": ["user-id"],
-        "checksum_indexes": [15,35,3,7,21,26,39,35,4,0,6,29,35,28,37,27,22,4,9,10,37,21,27,13,17,31,28,24,0,14,9,0],
+        "checksum_indexes": [
+            15,
+            35,
+            3,
+            7,
+            21,
+            26,
+            39,
+            35,
+            4,
+            0,
+            6,
+            29,
+            35,
+            28,
+            37,
+            27,
+            22,
+            4,
+            9,
+            10,
+            37,
+            21,
+            27,
+            13,
+            17,
+            31,
+            28,
+            24,
+            0,
+            14,
+            9,
+            0,
+        ],
         "checksum_constant": 53,
     }
     PROFILE_LIST = sys.argv
