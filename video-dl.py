@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Tool to download content from OnlyFans accounts
+Tool to download video content
 
 Configuration variables:
 - user_id: User ID for authentication
@@ -19,6 +19,7 @@ import os
 import pathlib
 import shutil
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -29,17 +30,20 @@ urllib3.disable_warnings()
 # Configuration
 
 # Session variables
-USER_ID = ""
-USER_AGENT = ""
-X_BC = ""
-SESSION_COOKIE = ""
+with open("config.json", "r") as file:
+    config = json.load(file)
+
+USER_ID = config["user_id"]
+USER_AGENT = config["user_agent"]
+X_BC = config["x_bc"]
+SESSION_COOKIE = config["sess"]
 
 # 0 = do not print file names or api calls
 # 1 = print file names only when max_age is set
 # 2 = always print file names
 # 3 = print api calls
 # 4 = print skipped files that already exist
-VERBOSITY = 2
+VERBOSITY = 3
 # Download Directory. Use CMD if null
 DOWNLOAD_DIR = "/Users/sundalei/Downloads"
 # List of accounts to skip
@@ -64,19 +68,46 @@ PURCHASED = True
 
 # End configurations
 
-API_BASE_URL = "https://onlyfans.com/api2/v2"
+API_URL = "https://onlyfans.com/api2/v2"
+new_files = 0
+MAX_AGE = 0
+LATEST = 0
+API_HEADER = {
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Encoding": "gzip, deflate",
+    "app-token": "33d57ade8c02dbc5a333db99ff9ae26a",
+    "User-Agent": USER_AGENT,
+    "x-bc": X_BC,
+    "user-id": USER_ID,
+    "Cookie": "auh_id=" + USER_ID + "; sess=" + SESSION_COOKIE,
+    "Referer": "https://onlyfans.com/",
+}
 
-print(sys)
-print(json)
-print(shutil)
-print(pathlib)
-print(requests)
-print(hashlib)
-print(datetime)
-print(timedelta)
+
+def create_signed_headers(link, queryParams):
+    """
+    Create signed headers for OnlyFans API
+    """
+    global API_HEADER
+    path = "/api2/v2" + link
+    if queryParams:
+        query = "&".join("=".join((key, value)) for (key, value) in queryParams.items())
+        path = f"{path}?{query}"
+
+    unixtime = str(int(datetime.now().timestamp()))
+    msg = "\n".join([dynamic_rules["static_param"], unixtime, path, str(USER_ID)])
+    message = msg.encode("utf-8")
+    hash_object = hashlib.sha1(message)
+    sha_1_sign = hash_object.hexdigest()
+    sha_1_b = sha_1_sign.encode("ascii")
+    checksum = sum([sha_1_b[number] for number in dynamic_rules["checksum_indexes"]])
+    checksum += dynamic_rules["checksum_constant"]
+    API_HEADER["sign"] = dynamic_rules["format"].format(sha_1_sign, abs(checksum))
+    API_HEADER["time"] = unixtime
+    return
 
 
-def show_age(ts: str):
+def show_age(ts):
     """Show the age of a timestamp"""
     print("show age:", ts)
     tmp = ts.split(".")
@@ -85,14 +116,17 @@ def show_age(ts: str):
     return dt_obj.strftime("%Y-%m-%d")
 
 
-def api_request(api_type: str):
+def api_request(endpoint, api_type):
+    """
+    Request endpoints
+    """
     posts_limit = 50
     age = ""
     get_params = {
         "limit": str(posts_limit),
         "order": "publish_date_asc",
     }
-    
+
     if api_type == "messages":
         get_params["order"] = "desc"
     if api_type == "subscriptions":
@@ -101,14 +135,23 @@ def api_request(api_type: str):
         if api_type != "messages" and api_type != "subscriptions" and api_type != "purchased":
             get_params["afterPublishTime"] = str(MAX_AGE) + ".000000"
             age = " age " + str(show_age(get_params["afterPublishTime"]))
+            # Messages can only be limited by offset or last message ID.
+    create_signed_headers(endpoint, get_params)
+    if VERBOSITY >= 3:
+        print(API_URL + endpoint + age)
 
-    print(get_params)
+    status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
+    if status.ok:
+        list_base = status.json()
+    else:
+        return json.loads('{"error":{"message":"http ' + str(status.status_code) + '"}}')
 
+    return list_base
 
 
 def get_subscriptions():
     """Get a list of all subscriptions"""
-    api_request("subscriptions")
+    subs = api_request("/subscriptions/subscribes", "subscriptions")
 
 
 if __name__ == "__main__":
@@ -128,53 +171,49 @@ if __name__ == "__main__":
     print("Download directory: " + os.getcwd())
     # Rules for the signed headers
     dynamic_rules = {
-        "end": "67a0ec50",
-        "start": "36587",
-        "format": "36587:{}:{:x}:67a0ec50",
-        "prefix": "36587",
-        "suffix": "67a0ec50",
-        "revision": "202502031617-af2daeeb87",
+        "format": "51892:{}:{:x}:69406376",
         "app_token": "33d57ade8c02dbc5a333db99ff9ae26a",
-        "static_param": "r0COhCenVY6tUCrcnkbwz727f1m0UHsv",
-        "remove_headers": ["user_id"],
+        "static_param": "7HMjX3tp4B4JJDOryHAMCUIQCtmGq69D",
+        "remove_headers": ["user-id"],
         "checksum_indexes": [
-            1,
-            1,
-            1,
-            2,
-            2,
-            5,
-            5,
-            6,
-            6,
+            15,
+            35,
+            3,
             7,
-            7,
-            11,
-            12,
-            12,
-            13,
-            14,
-            14,
-            16,
-            17,
-            20,
-            20,
-            20,
             21,
-            23,
-            24,
-            25,
-            25,
-            25,
-            29,
-            30,
-            31,
+            26,
             39,
+            35,
+            4,
+            0,
+            6,
+            29,
+            35,
+            28,
+            37,
+            27,
+            22,
+            4,
+            9,
+            10,
+            37,
+            21,
+            27,
+            13,
+            17,
+            31,
+            28,
+            24,
+            0,
+            14,
+            9,
+            0,
         ],
-        "checksum_constant": 118,
+        "checksum_constant": 53,
     }
     PROFILE_LIST = sys.argv
     PROFILE_LIST.pop(0)
+
     if PROFILE_LIST[-1] == "0":
         LATEST = 1
         PROFILE_LIST.pop(-1)

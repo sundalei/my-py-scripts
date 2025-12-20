@@ -16,10 +16,8 @@
 | NATURAL_LANGUAGE           | Pass ✅           |
 | PRE_COMMIT                 | Pass ✅           |
 | PYTHON_BLACK               | Pass ✅           |
-| PYTHON_FLAKE8              | Pass ✅           |
 | PYTHON_ISORT               | Pass ✅           |
 | PYTHON_MYPY                | Pass ✅           |
-| PYTHON_RUFF                | Pass ✅           |
 | PYTHON_RUFF_FORMAT         | Pass ✅           |
 | TRIVY                      | Pass ✅           |
 | YAML                       | Pass ✅           |
