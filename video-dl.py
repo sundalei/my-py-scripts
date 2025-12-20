@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Tool to download content from OnlyFans accounts
+Tool to download video content
 
 Configuration variables:
 - user_id: User ID for authentication
@@ -65,9 +65,29 @@ PURCHASED = True
 # End configurations
 
 API_BASE_URL = "https://onlyfans.com/api2/v2"
+new_files = 0
+MAX_AGE = 0
+LATEST = 0
+API_HEADER = {
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Encoding": "gzip, deflate",
+}
 
-print(sys)
-print(json)
+
+def create_signed_headers(link, queryParams):
+    """
+    Create a signed headers
+    """
+    global API_HEADER
+    path = "/api2/v2" + link
+    if queryParams:
+        query = "&".join("=".join((key, value)) for (key, value) in queryParams.items())
+        path = f"{path}?{query}"
+    unixtime = str(int(datetime.now().timestamp()))
+    msg = "\n".join([dynamic_rules["static_param"], unixtime, path, USER_ID])
+    print("msg", msg)
+
+
 print(shutil)
 print(pathlib)
 print(requests)
@@ -85,7 +105,7 @@ def show_age(ts: str):
     return dt_obj.strftime("%Y-%m-%d")
 
 
-def api_request(api_type: str):
+def api_request(endpoint, api_type):
     posts_limit = 50
     age = ""
     get_params = {
@@ -101,14 +121,15 @@ def api_request(api_type: str):
         if api_type != "messages" and api_type != "subscriptions" and api_type != "purchased":
             get_params["afterPublishTime"] = str(MAX_AGE) + ".000000"
             age = " age " + str(show_age(get_params["afterPublishTime"]))
-
+            # Messages can only be limited by offset or last message ID.
+    create_signed_headers(endpoint, get_params)
     print(get_params)
 
 
 
 def get_subscriptions():
     """Get a list of all subscriptions"""
-    api_request("subscriptions")
+    subs = api_request("/subscriptions/subscribes", "subscriptions")
 
 
 if __name__ == "__main__":
@@ -175,6 +196,7 @@ if __name__ == "__main__":
     }
     PROFILE_LIST = sys.argv
     PROFILE_LIST.pop(0)
+
     if PROFILE_LIST[-1] == "0":
         LATEST = 1
         PROFILE_LIST.pop(-1)
