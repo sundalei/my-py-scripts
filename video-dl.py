@@ -43,7 +43,7 @@ SESSION_COOKIE = config["sess"]
 # 2 = always print file names
 # 3 = print api calls
 # 4 = print skipped files that already exist
-VERBOSITY = 3
+VERBOSITY = 2
 # Download Directory. Use CMD if null
 DOWNLOAD_DIR = "/Users/sundalei/Downloads"
 # List of accounts to skip
@@ -116,6 +116,16 @@ def show_age(ts):
     return dt_obj.strftime("%Y-%m-%d")
 
 
+def latest(profile):
+    """Latest"""
+    latest = "0"
+    for dirpath, dirs, files in os.walk(profile):
+        for f in files:
+            if f.startswith("20"):
+                latest = f if f > latest else latest
+    return latest[:10]
+
+
 def api_request(endpoint, api_type):
     """
     Request endpoints
@@ -137,8 +147,9 @@ def api_request(endpoint, api_type):
             age = " age " + str(show_age(get_params["afterPublishTime"]))
             # Messages can only be limited by offset or last message ID.
     create_signed_headers(endpoint, get_params)
+
     if VERBOSITY >= 3:
-        print(API_URL + endpoint + age)
+        print(API_URL + endpoint + age + "\n")
     
     try:
         status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
@@ -152,7 +163,34 @@ def api_request(endpoint, api_type):
 
     # Fixed the issue with the maximum limit of 50
     if(len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
-        print("has more")
+        if api_type == "messages":
+            get_params['id'] = str(list_base['list'][len(list_base['list'])-1]['id'])
+        elif api_type == "purchased" or api_type == "subscriptions":
+            get_params["offset"] = str(posts_limit)
+        else:
+            get_params["afterPublishTime"] = list_base[len(list_base) - 1]["postedAtPrecise"]
+        
+        while True:
+            create_signed_headers(endpoint, get_params)
+            if VERBOSITY >= 3:
+                print(API_URL + endpoint + age)
+            status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
+            if status.ok:
+                list_extend = status.json()
+            if api_type == "messages":
+                list_base['list'].extend(list_extend['list'])
+                if list_extend['hasMore'] == False or len(list_extend['list']) < posts_limit or not status.ok:
+                    break
+                get_params['id'] = str(list_base['list'][len(list_base['list']) - 1]['id'])
+                continue
+            list_base.extend(list_extend) # Merge with previous posts
+            if len(list_extend) < posts_limit:
+                break
+            if api_type == 'purchased' or api_type == 'subscriptions':
+                get_params['offset'] = str(int(get_params['offset']) + posts_limit)
+            else:
+                get_params['afterPublishTime'] = list_extend[len(list_extend) - 1]['postedAtPrecise']
+            
     return list_base
 
 
@@ -171,6 +209,22 @@ def get_subscriptions():
         print("\nSUBSCRIPTIONS ERROR: " + subs["error"]["message"])
         return
     return [row["username"] for row in subs]
+
+
+def get_content(media_type, api_location):
+    """Get content"""
+    posts = api_request(api_location, media_type)
+
+    if "error" in posts:
+        print("\nERROR: " + API_LOCATION + " :: " + posts["error"]["message"])
+
+    if media_type == "messages":
+        posts = post["list"]
+
+    if len(posts) > 0:
+        pass
+
+    return posts
 
 
 if __name__ == "__main__":
@@ -255,4 +309,17 @@ if __name__ == "__main__":
             PROFILE_ID = str(user_info["id"])
         else:
             continue
-        print("\nProfile: " + profile + " (ID: " + PROFILE_ID + ")")
+        
+        if LATEST:
+            latestDate = latest(profile)
+            if latestDate != "0":
+                MAX_AGE = int(datetime.strftime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+                print("\nGetting posts newer than " + latestDate + " 00:00:00 UTC")
+        
+        if os.path.isdir(profile):
+            print("\n" + profile + " exists.\nDownloading new media, skipping pre-existing.")
+        else:
+            print("\nDownloading content to " + profile)
+
+        if POSTS:
+            posts = get_content("posts", "/users/" + PROFILE_ID + "/posts")
