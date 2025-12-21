@@ -150,7 +150,18 @@ def api_request(endpoint, api_type):
         print("connection timeout")
         raise e
 
+    # Fixed the issue with the maximum limit of 50
+    if(len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
+        print("has more")
     return list_base
+
+
+def get_user_info(profile):
+    """Get user info"""
+    info = api_request("/users/" + profile, "user-info")
+    if "error" in info:
+        print("\nFailed to get user: " + profile + "\n" + info["error"]["message"] + "\n")
+    return info
 
 
 def get_subscriptions():
@@ -232,4 +243,16 @@ if __name__ == "__main__":
 
     if PROFILE_LIST[0] == "all":
         PROFILE_LIST = get_subscriptions()
-    print("profile list", PROFILE_LIST)
+    
+    for profile in PROFILE_LIST:
+        if profile in SKIP_ACCOUNTS:
+            if VERBOSITY > 0:
+                print("Skipping " + profile)
+            continue
+        user_info = get_user_info(profile)
+
+        if "id" in user_info:
+            PROFILE_ID = str(user_info["id"])
+        else:
+            continue
+        print("\nProfile: " + profile + " (ID: " + PROFILE_ID + ")")
