@@ -139,12 +139,16 @@ def api_request(endpoint, api_type):
     create_signed_headers(endpoint, get_params)
     if VERBOSITY >= 3:
         print(API_URL + endpoint + age)
-
-    status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
-    if status.ok:
-        list_base = status.json()
-    else:
-        return json.loads('{"error":{"message":"http ' + str(status.status_code) + '"}}')
+    
+    try:
+        status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
+        if status.ok:
+            list_base = status.json()
+        else:
+            return json.loads('{"error":{"message":"http ' + str(status.status_code) + '"}}')
+    except requests.exceptions.ConnectTimeout as e:
+        print("connection timeout")
+        raise e
 
     return list_base
 
@@ -152,6 +156,10 @@ def api_request(endpoint, api_type):
 def get_subscriptions():
     """Get a list of all subscriptions"""
     subs = api_request("/subscriptions/subscribes", "subscriptions")
+    if "error" in subs:
+        print("\nSUBSCRIPTIONS ERROR: " + subs["error"]["message"])
+        return
+    return [row["username"] for row in subs]
 
 
 if __name__ == "__main__":
@@ -223,4 +231,5 @@ if __name__ == "__main__":
         print("\nGetting posts newer than " + str(from_time) + " UTC")
 
     if PROFILE_LIST[0] == "all":
-        get_subscriptions()
+        PROFILE_LIST = get_subscriptions()
+    print("profile list", PROFILE_LIST)
