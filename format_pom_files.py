@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to format all descendant pom.xml files in a folder
-by replacing tabs with 2 whitespace indents
+by replacing tabs with 2 whitespace indents and converting 4-space indentation to 2-space.
 """
 
 import argparse
@@ -10,34 +10,70 @@ import re
 import sys
 
 
-def replace_tabs_with_spaces(content, spaces_per_tab=2):
+def convert_indentation(content, target_spaces=2):
     """
-    Replace tabs with specified number of spaces in content.
-    Handles mixed indentation properly.
+    Format indentation to the target number of spaces.
+    Handles:
+    1. Tabs -> target_spaces
+    2. 4-space indentation -> target_spaces (if consistent 4-space indent is detected)
     """
     lines = content.split("\n")
-    result_lines = []
-
+    
+    # Pass 1: Convert Tabs to target_spaces
+    # We maintain the list to check for 4-space pattern later
+    pass1_lines = []
     for line in lines:
-        # Find leading whitespaces
-        leading_whitespace = re.match(r"^(\s*)", line).group(1)
+        match = re.match(r"^(\s*)", line)
+        if match:
+            leading = match.group(1)
+            # If tabs exist, convert 1 tab to 1 indentation level (target_spaces)
+            if "\t" in leading:
+                new_leading = leading.replace("\t", " " * target_spaces)
+                line = new_leading + line[len(leading):]
+        pass1_lines.append(line)
 
-        if "\t" in leading_whitespace:
-            # Count tabs and spaces in leading whitespace
-            tab_count = leading_whitespace.count("\t")
-            space_count = len(leading_whitespace) - tab_count
+    # If target is not 2, we don't perform the 4->2 shrinkage logic automatically
+    # as the requirement essentially maps 4->2.
+    if target_spaces != 2:
+        return "\n".join(pass1_lines)
 
-            # Convert tabs to spaces
-            new_leading_whitespace = " " * (tab_count * spaces_per_tab + space_count)
+    # Pass 2: Detect if the file (after tab conversion) typically uses 4 spaces
+    # Condition: 
+    # - Has indented lines
+    # - All indented lines are multiples of 4 spaces
+    # - No lines with 2 spaces (that are not 4), 6 spaces, etc.
+    
+    has_indent = False
+    is_consistent_4_space = True
+    
+    for line in pass1_lines:
+        match = re.match(r"^( +)", line)
+        if match:
+            leading_len = len(match.group(1))
+            if leading_len > 0:
+                has_indent = True
+                if leading_len % 4 != 0:
+                    # Found a line like 2, 6, 10 spaces... 
+                    # This contradicts pure 4-space indentation
+                    is_consistent_4_space = False
+                    break
+    
+    # Pass 3: If 4-space indentation is detected, shrink to 2 spaces
+    if has_indent and is_consistent_4_space:
+        final_lines = []
+        for line in pass1_lines:
+            match = re.match(r"^( +)(.*)", line)
+            if match:
+                leading_len = len(match.group(1))
+                content_part = match.group(2)
+                # Shrink by half (4->2, 8->4)
+                new_leading = " " * (leading_len // 2)
+                final_lines.append(new_leading + content_part)
+            else:
+                final_lines.append(line)
+        return "\n".join(final_lines)
 
-            # Replace the leading whitespace
-            line = new_leading_whitespace + line[len(leading_whitespace) :]
-
-        # Also replace any tabs in the rest of the line (though unusual in XML)
-        line = line.replace("\t", " " * spaces_per_tab)
-        result_lines.append(line)
-
-    return "\n".join(result_lines)
+    return "\n".join(pass1_lines)
 
 
 def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
@@ -48,7 +84,7 @@ def format_pom_file(file_path, spaces_per_tab=2, dry_run=False, verbose=False):
         with open(file_path, "r", encoding="utf-8") as f:
             original_content = f.read()
 
-        formatted_content = replace_tabs_with_spaces(original_content, spaces_per_tab)
+        formatted_content = convert_indentation(original_content, spaces_per_tab)
 
         # Check if changes are needed
         if original_content == formatted_content:
@@ -97,7 +133,7 @@ def main():
     """
     Main function to parse arguments and run the formatter.
     """
-    parser = argparse.ArgumentParser(description="Format all descendant pom.xml files by replacing tabs with 2 spaces.")
+    parser = argparse.ArgumentParser(description="Format pom.xml files: tabs -> 2 spaces, and 4 spaces -> 2 spaces.")
     parser.add_argument(
         "directory",
         nargs="?",
