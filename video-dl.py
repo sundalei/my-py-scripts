@@ -154,7 +154,7 @@ def api_request(endpoint, api_type):
 
     if VERBOSITY >= 3:
         print(API_URL + endpoint + age + "\n")
-    
+
     try:
         status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
         if status.ok:
@@ -166,14 +166,14 @@ def api_request(endpoint, api_type):
         raise e
 
     # Fixed the issue with the maximum limit of 50
-    if(len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
+    if (len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
         if api_type == "messages":
-            get_params['id'] = str(list_base['list'][len(list_base['list'])-1]['id'])
+            get_params["id"] = str(list_base["list"][len(list_base["list"]) - 1]["id"])
         elif api_type == "purchased" or api_type == "subscriptions":
             get_params["offset"] = str(posts_limit)
         else:
             get_params["afterPublishTime"] = list_base[len(list_base) - 1]["postedAtPrecise"]
-        
+
         while True:
             create_signed_headers(endpoint, get_params)
             if VERBOSITY >= 3:
@@ -182,19 +182,19 @@ def api_request(endpoint, api_type):
             if status.ok:
                 list_extend = status.json()
             if api_type == "messages":
-                list_base['list'].extend(list_extend['list'])
-                if list_extend['hasMore'] == False or len(list_extend['list']) < posts_limit or not status.ok:
+                list_base["list"].extend(list_extend["list"])
+                if list_extend["hasMore"] == False or len(list_extend["list"]) < posts_limit or not status.ok:
                     break
-                get_params['id'] = str(list_base['list'][len(list_base['list']) - 1]['id'])
+                get_params["id"] = str(list_base["list"][len(list_base["list"]) - 1]["id"])
                 continue
-            list_base.extend(list_extend) # Merge with previous posts
+            list_base.extend(list_extend)  # Merge with previous posts
             if len(list_extend) < posts_limit:
                 break
-            if api_type == 'purchased' or api_type == 'subscriptions':
-                get_params['offset'] = str(int(get_params['offset']) + posts_limit)
+            if api_type == "purchased" or api_type == "subscriptions":
+                get_params["offset"] = str(int(get_params["offset"]) + posts_limit)
             else:
-                get_params['afterPublishTime'] = list_extend[len(list_extend) - 1]['postedAtPrecise']
-            
+                get_params["afterPublishTime"] = list_extend[len(list_extend) - 1]["postedAtPrecise"]
+
     return list_base
 
 
@@ -247,7 +247,7 @@ def get_content(media_type, api_location):
                 album = ""
             for media in post["media"]:
                 if "files" in media and "canView" in media and media["canView"]:
-                    download_media()            
+                    download_media()
 
     return posts
 
@@ -282,7 +282,7 @@ if __name__ == "__main__":
 
     if PROFILE_LIST[0] == "all":
         PROFILE_LIST = get_subscriptions()
-    
+
     for profile in PROFILE_LIST:
         if profile in SKIP_ACCOUNTS:
             if VERBOSITY > 0:
@@ -294,13 +294,13 @@ if __name__ == "__main__":
             PROFILE_ID = str(user_info["id"])
         else:
             continue
-        
+
         if LATEST:
             latestDate = latest(profile)
             if latestDate != "0":
                 MAX_AGE = int(datetime.strptime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
                 print("\nGetting posts newer than " + latestDate + " 00:00:00 UTC")
-        
+
         if os.path.isdir(profile):
             print("\n" + profile + " exists.\nDownloading new media, skipping pre-existing.")
         else:

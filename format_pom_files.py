@@ -18,7 +18,7 @@ def convert_indentation(content, target_spaces=2):
     2. 4-space indentation -> target_spaces (if consistent 4-space indent is detected)
     """
     lines = content.split("\n")
-    
+
     # Pass 1: Convert Tabs to target_spaces
     # We maintain the list to check for 4-space pattern later
     pass1_lines = []
@@ -29,7 +29,7 @@ def convert_indentation(content, target_spaces=2):
             # If tabs exist, convert 1 tab to 1 indentation level (target_spaces)
             if "\t" in leading:
                 new_leading = leading.replace("\t", " " * target_spaces)
-                line = new_leading + line[len(leading):]
+                line = new_leading + line[len(leading) :]
         pass1_lines.append(line)
 
     # If target is not 2, we don't perform the 4->2 shrinkage logic automatically
@@ -38,14 +38,14 @@ def convert_indentation(content, target_spaces=2):
         return "\n".join(pass1_lines)
 
     # Pass 2: Detect if the file (after tab conversion) typically uses 4 spaces
-    # Condition: 
+    # Condition:
     # - Has indented lines
     # - All indented lines are multiples of 4 spaces
     # - No lines with 2 spaces (that are not 4), 6 spaces, etc.
-    
+
     has_indent = False
     is_consistent_4_space = True
-    
+
     for line in pass1_lines:
         match = re.match(r"^( +)", line)
         if match:
@@ -53,11 +53,11 @@ def convert_indentation(content, target_spaces=2):
             if leading_len > 0:
                 has_indent = True
                 if leading_len % 4 != 0:
-                    # Found a line like 2, 6, 10 spaces... 
+                    # Found a line like 2, 6, 10 spaces...
                     # This contradicts pure 4-space indentation
                     is_consistent_4_space = False
                     break
-    
+
     # Pass 3: If 4-space indentation is detected, shrink to 2 spaces
     if has_indent and is_consistent_4_space:
         final_lines = []
