@@ -37,6 +37,10 @@ USER_ID = config["user_id"]
 USER_AGENT = config["user_agent"]
 X_BC = config["x_bc"]
 SESSION_COOKIE = config["sess"]
+APP_TOKEN = config["app_token"]
+
+with open("dynamic_rules.json", "r") as file:
+    dynamic_rules = json.load(file)
 
 # 0 = do not print file names or api calls
 # 1 = print file names only when max_age is set
@@ -45,7 +49,7 @@ SESSION_COOKIE = config["sess"]
 # 4 = print skipped files that already exist
 VERBOSITY = 2
 # Download Directory. Use CMD if null
-DOWNLOAD_DIR = "/Users/sundalei/Downloads"
+DOWNLOAD_DIR = ""
 # List of accounts to skip
 SKIP_ACCOUNTS: list[str] = []
 
@@ -75,7 +79,7 @@ LATEST = 0
 API_HEADER = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate",
-    "app-token": "33d57ade8c02dbc5a333db99ff9ae26a",
+    "app-token": APP_TOKEN,
     "User-Agent": USER_AGENT,
     "x-bc": X_BC,
     "user-id": USER_ID,
@@ -150,7 +154,7 @@ def api_request(endpoint, api_type):
 
     if VERBOSITY >= 3:
         print(API_URL + endpoint + age + "\n")
-    
+
     try:
         status = requests.get(API_URL + endpoint, headers=API_HEADER, params=get_params)
         if status.ok:
@@ -162,14 +166,14 @@ def api_request(endpoint, api_type):
         raise e
 
     # Fixed the issue with the maximum limit of 50
-    if(len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
+    if (len(list_base) >= posts_limit and api_type != "user-info") or ("hasMore" in list_base and list_base["hasMore"]):
         if api_type == "messages":
-            get_params['id'] = str(list_base['list'][len(list_base['list'])-1]['id'])
+            get_params["id"] = str(list_base["list"][len(list_base["list"]) - 1]["id"])
         elif api_type == "purchased" or api_type == "subscriptions":
             get_params["offset"] = str(posts_limit)
         else:
             get_params["afterPublishTime"] = list_base[len(list_base) - 1]["postedAtPrecise"]
-        
+
         while True:
             create_signed_headers(endpoint, get_params)
             if VERBOSITY >= 3:
@@ -178,19 +182,19 @@ def api_request(endpoint, api_type):
             if status.ok:
                 list_extend = status.json()
             if api_type == "messages":
-                list_base['list'].extend(list_extend['list'])
-                if list_extend['hasMore'] == False or len(list_extend['list']) < posts_limit or not status.ok:
+                list_base["list"].extend(list_extend["list"])
+                if list_extend["hasMore"] == False or len(list_extend["list"]) < posts_limit or not status.ok:
                     break
-                get_params['id'] = str(list_base['list'][len(list_base['list']) - 1]['id'])
+                get_params["id"] = str(list_base["list"][len(list_base["list"]) - 1]["id"])
                 continue
-            list_base.extend(list_extend) # Merge with previous posts
+            list_base.extend(list_extend)  # Merge with previous posts
             if len(list_extend) < posts_limit:
                 break
-            if api_type == 'purchased' or api_type == 'subscriptions':
-                get_params['offset'] = str(int(get_params['offset']) + posts_limit)
+            if api_type == "purchased" or api_type == "subscriptions":
+                get_params["offset"] = str(int(get_params["offset"]) + posts_limit)
             else:
-                get_params['afterPublishTime'] = list_extend[len(list_extend) - 1]['postedAtPrecise']
-            
+                get_params["afterPublishTime"] = list_extend[len(list_extend) - 1]["postedAtPrecise"]
+
     return list_base
 
 
@@ -211,6 +215,11 @@ def get_subscriptions():
     return [row["username"] for row in subs]
 
 
+def download_media():
+    """Download media"""
+    pass
+
+
 def get_content(media_type, api_location):
     """Get content"""
     posts = api_request(api_location, media_type)
@@ -222,7 +231,23 @@ def get_content(media_type, api_location):
         posts = post["list"]
 
     if len(posts) > 0:
-        pass
+        print("Found " + str(len(posts)) + " " + media_type)
+        for post in posts:
+            if "media" not in post or ("canViewMedia" in post and not post["canViewMedia"]):
+                continue
+            if "postedAt" in post:
+                post_date = str(post["postedAt"][:10])
+            elif "createdAt" in post:
+                post_date = str(post["createdAt"][:10])
+            else:
+                post_date = "1970-01-01"
+            if len(post["media"]) > 1:
+                album = str(post["id"])
+            else:
+                album = ""
+            for media in post["media"]:
+                if "files" in media and "canView" in media and media["canView"]:
+                    download_media()
 
     return posts
 
@@ -242,54 +267,14 @@ if __name__ == "__main__":
         except OSError:
             print("Unable to use DOWNLOAD_DIR: " + DOWNLOAD_DIR)
     print("Download directory: " + os.getcwd())
-    # Rules for the signed headers
-    dynamic_rules = {
-        "format": "51892:{}:{:x}:69406376",
-        "app_token": "33d57ade8c02dbc5a333db99ff9ae26a",
-        "static_param": "7HMjX3tp4B4JJDOryHAMCUIQCtmGq69D",
-        "remove_headers": ["user-id"],
-        "checksum_indexes": [
-            15,
-            35,
-            3,
-            7,
-            21,
-            26,
-            39,
-            35,
-            4,
-            0,
-            6,
-            29,
-            35,
-            28,
-            37,
-            27,
-            22,
-            4,
-            9,
-            10,
-            37,
-            21,
-            27,
-            13,
-            17,
-            31,
-            28,
-            24,
-            0,
-            14,
-            9,
-            0,
-        ],
-        "checksum_constant": 53,
-    }
+
     PROFILE_LIST = sys.argv
     PROFILE_LIST.pop(0)
 
     if PROFILE_LIST[-1] == "0":
         LATEST = 1
         PROFILE_LIST.pop(-1)
+
     if len(PROFILE_LIST) > 1 and PROFILE_LIST[-1].isnumeric():
         MAX_AGE = int((datetime.today() - timedelta(int(PROFILE_LIST.pop(-1)))).timestamp())
         from_time = datetime.fromtimestamp(int(MAX_AGE), tz=timezone.utc)
@@ -297,7 +282,7 @@ if __name__ == "__main__":
 
     if PROFILE_LIST[0] == "all":
         PROFILE_LIST = get_subscriptions()
-    
+
     for profile in PROFILE_LIST:
         if profile in SKIP_ACCOUNTS:
             if VERBOSITY > 0:
@@ -309,13 +294,13 @@ if __name__ == "__main__":
             PROFILE_ID = str(user_info["id"])
         else:
             continue
-        
+
         if LATEST:
             latestDate = latest(profile)
             if latestDate != "0":
-                MAX_AGE = int(datetime.strftime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+                MAX_AGE = int(datetime.strptime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
                 print("\nGetting posts newer than " + latestDate + " 00:00:00 UTC")
-        
+
         if os.path.isdir(profile):
             print("\n" + profile + " exists.\nDownloading new media, skipping pre-existing.")
         else:
