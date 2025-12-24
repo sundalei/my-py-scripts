@@ -37,6 +37,7 @@ USER_ID = config["user_id"]
 USER_AGENT = config["user_agent"]
 X_BC = config["x_bc"]
 SESSION_COOKIE = config["sess"]
+APP_TOKEN = config["app_token"]
 
 with open("dynamic_rules.json", "r") as file:
     dynamic_rules = json.load(file)
@@ -78,7 +79,7 @@ LATEST = 0
 API_HEADER = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Encoding": "gzip, deflate",
-    "app-token": "33d57ade8c02dbc5a333db99ff9ae26a",
+    "app-token": APP_TOKEN,
     "User-Agent": USER_AGENT,
     "x-bc": X_BC,
     "user-id": USER_ID,
