@@ -298,7 +298,7 @@ if __name__ == "__main__":
         if LATEST:
             latestDate = latest(profile)
             if latestDate != "0":
-                MAX_AGE = int(datetime.strftime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+                MAX_AGE = int(datetime.strptime(latestDate + " 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
                 print("\nGetting posts newer than " + latestDate + " 00:00:00 UTC")
         
         if os.path.isdir(profile):
