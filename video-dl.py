@@ -215,9 +215,19 @@ def get_subscriptions():
     return [row["username"] for row in subs]
 
 
-def download_media():
+def download_media(media, post_date):
     """Download media"""
-    pass
+    filename = post_date + "_" + str(media["id"])
+
+    if "files" in media:
+        if "full" in media["files"]:
+            if "url" in media["files"]["full"]:
+                source = media["files"]["full"]["url"]
+    else:
+        return
+    
+    if source is None:
+        return
 
 
 def get_content(media_type, api_location):
@@ -247,7 +257,7 @@ def get_content(media_type, api_location):
                 album = ""
             for media in post["media"]:
                 if "files" in media and "canView" in media and media["canView"]:
-                    download_media()
+                    download_media(media, post_date)
 
     return posts
 
