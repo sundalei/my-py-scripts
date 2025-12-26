@@ -2,9 +2,8 @@
 Audio Modifier - A tool for reading and modifying FLAC audio file metadata
 """
 
-from mutagen.flac import Picture
 from mutagen import MutagenError
-from mutagen.flac import FLAC
+from mutagen.flac import FLAC, Picture
 
 FLAC_PATH = ""
 COVER_PATH = ""
@@ -22,7 +21,7 @@ try:
     picture = Picture()
     picture.data = cover_data
     picture.mime = "image/jpeg"
-    picture.type = 3 # means front cover
+    picture.type = 3  # means front cover
     picture.width = 500
     picture.height = 500
 
