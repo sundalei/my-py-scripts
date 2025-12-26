@@ -225,7 +225,7 @@ def download_media(media, post_date):
                 source = media["files"]["full"]["url"]
     else:
         return
-    
+
     if source is None:
         return
 

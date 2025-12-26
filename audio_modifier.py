@@ -21,7 +21,7 @@ try:
     picture = Picture()
     picture.data = cover_data
     picture.mime = "image/jpeg"
-    picture.type = 3 # means front cover
+    picture.type = 3  # means front cover
     picture.width = 500
     picture.height = 500
 
