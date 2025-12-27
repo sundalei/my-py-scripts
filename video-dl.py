@@ -229,7 +229,7 @@ def download_media(media, post_date):
 
     if source is None:
         return
-    
+
     if (media["type"] not in ("photo", "video", "audio", "gif")) or not media["canView"]:
         return
     if (
