@@ -121,7 +121,7 @@ def show_age(ts):
 
 
 def latest(profile):
-    """Latest"""
+    """Find latest date for each profile"""
     latest = "0"
     for dirpath, dirs, files in os.walk(profile):
         for f in files:
@@ -219,6 +219,7 @@ def download_media(media, post_date):
     """Download media"""
     filename = post_date + "_" + str(media["id"])
 
+    source = None
     if "files" in media:
         if "full" in media["files"]:
             if "url" in media["files"]["full"]:
@@ -229,6 +230,16 @@ def download_media(media, post_date):
     if source is None:
         return
 
+    if (media["type"] not in ("photo", "video", "audio", "gif")) or not media["canView"]:
+        return
+    if (
+        (media["type"] == "photo" and not PHOTOS)
+        or (media["type"] == "video" and not VIDEOS)
+        or (media["type"] == "audio" and not AUDIO)
+    ):
+        return
+    print("Source: " + source)
+
 
 def get_content(media_type, api_location):
     """Get content"""
@@ -238,7 +249,7 @@ def get_content(media_type, api_location):
         print("\nERROR: " + API_LOCATION + " :: " + posts["error"]["message"])
 
     if media_type == "messages":
-        posts = post["list"]
+        posts = posts["list"]
 
     if len(posts) > 0:
         print("Found " + str(len(posts)) + " " + media_type)
@@ -264,7 +275,7 @@ def get_content(media_type, api_location):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: " + sys.argv[0] + " <list of profiles / all> <max age (optional)>")
+        print("Usage: python " + sys.argv[0] + " <list of profiles / all> <max age (optional)>")
         print("max age must be an integer. number of days back from today.")
         print("if max age = 0, the script will find the latest date amongst the files for each profile independantly.")
         print("Make sure to update the session variables at the top of this script (See readme).")
@@ -278,22 +289,21 @@ if __name__ == "__main__":
             print("Unable to use DOWNLOAD_DIR: " + DOWNLOAD_DIR)
     print("Download directory: " + os.getcwd())
 
-    PROFILE_LIST = sys.argv
-    PROFILE_LIST.pop(0)
+    profiles = sys.argv[1:]
 
-    if PROFILE_LIST[-1] == "0":
+    if profiles[-1] == "0":
         LATEST = 1
-        PROFILE_LIST.pop(-1)
+        profiles.pop(-1)
 
-    if len(PROFILE_LIST) > 1 and PROFILE_LIST[-1].isnumeric():
-        MAX_AGE = int((datetime.today() - timedelta(int(PROFILE_LIST.pop(-1)))).timestamp())
+    if len(profiles) > 1 and profiles[-1].isnumeric():
+        MAX_AGE = int((datetime.today() - timedelta(int(profiles.pop(-1)))).timestamp())
         from_time = datetime.fromtimestamp(int(MAX_AGE), tz=timezone.utc)
         print("\nGetting posts newer than " + str(from_time) + " UTC")
 
-    if PROFILE_LIST[0] == "all":
-        PROFILE_LIST = get_subscriptions()
+    if profiles[0] == "all":
+        profiles = get_subscriptions()
 
-    for profile in PROFILE_LIST:
+    for profile in profiles:
         if profile in SKIP_ACCOUNTS:
             if VERBOSITY > 0:
                 print("Skipping " + profile)
