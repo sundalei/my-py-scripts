@@ -1,7 +1,7 @@
 import json
+import platform
 import urllib.parse
 import urllib.request
-import platform
 
 
 def find_java_url(java_version):
