@@ -8,4 +8,4 @@ node_modules/
 config.json
 dynamic_rules.json
 .env
-super-linter-output/
+super-linter-summary.md
