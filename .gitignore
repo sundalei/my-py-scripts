@@ -9,3 +9,4 @@ config.json
 dynamic_rules.json
 .env
 super-linter-summary.md
+.DS_Store

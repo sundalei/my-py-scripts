@@ -13,6 +13,7 @@ jobs:
   lint-and-fix:
     name: Lint and Fix
     runs-on: ubuntu-latest
+    environment: ci
 
     permissions:
       # To write linting fixes
@@ -30,7 +31,7 @@ jobs:
           token: ${{ secrets.PAT_WITH_WORKFLOW_ACCESS }}
 
       - name: Super-linter
-        uses: super-linter/super-linter@v8.5.0
+        uses: super-linter/super-linter@v8.6.0
         env:
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

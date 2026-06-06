@@ -5,3 +5,7 @@ rules:
     disable: true
   artipacked:
     disable: true
+  secrets-outside-env:
+    config:
+      allow:
+        - PAT_WITH_WORKFLOW_ACCESS
