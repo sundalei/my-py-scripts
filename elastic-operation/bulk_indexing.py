@@ -86,7 +86,7 @@ def run_rest_bulk_index(file_path: str):
         except Exception as e:
             print(f"HTTP Request failed on chunk {chunk_num + 1}: {e}")
             break
-    
+
     print("\n--- Indexing Complete ---")
     print(f"Successfully indexed: {success_total}")
     print(f"Failed to index: {error_total}")
