@@ -1,4 +1,17 @@
+import requests
+from elastic_config import BASE_URL, CA_CERT_PATH, PASSWORD, USERNAME
+
+
+BULK_ENDPOINT = f"{BASE_URL}/_bulk"
+
 DATASET_FILE_PATH = "top-movies-kibana.txt"
+
+HEADERS = {
+    "Content-Type": "application/x-ndjson"
+}
+
+auth = (USERNAME, PASSWORD)
+ca_cert = CA_CERT_PATH
 
 
 def read_file_in_chunks(file_path: str, line_per_chunk: int):
@@ -44,10 +57,16 @@ def run_rest_bulk_index(file_path: str):
     error_total = 0
 
     # 1000 lines = 500 documents per request
-    gen = read_file_in_chunks(file_path, line_per_chunk=4)
-    
-    for i, chunk in enumerate(gen):
-        print(f"{i}\n{chunk}")
+    for chunk_num, ndjson_payload in enumerate(read_file_in_chunks(file_path, line_per_chunk=1000)):
+        print(f"Sending chunk {chunk_num + 1}...")
+
+        try:
+            response = requests.post(BULK_ENDPOINT, headers=HEADERS, data=ndjson_payload, auth=auth, verify=ca_cert)
+
+            # Check for HTTP-level errors
+            response.raise_for_status()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
