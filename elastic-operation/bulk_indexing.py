@@ -68,8 +68,28 @@ def run_rest_bulk_index(file_path: str):
 
             # Check for HTTP-level errors
             response.raise_for_status()
-        except Exception:
-            pass
+
+            response_data = response.json()
+
+            # The "errors" flag at the top level is true if ANY doc failed
+            if response_data.get("errors"):
+                for item in response_data.get("items", []):
+                    # 'index' is the action we performed
+                    if "error" in item.get("index", {}):
+                        error_total += 1
+                        if error_total == 1:
+                            print(f"Sample error: {item['index']['error']}")
+                    else:
+                        success_total += 1
+            else:
+                success_total += len(response_data.get("items", []))
+        except Exception as e:
+            print(f"HTTP Request failed on chunk {chunk_num + 1}: {e}")
+            break
+    
+    print("\n--- Indexing Complete ---")
+    print(f"Successfully indexed: {success_total}")
+    print(f"Failed to index: {error_total}")
 
 
 if __name__ == "__main__":
