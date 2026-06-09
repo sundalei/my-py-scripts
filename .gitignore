@@ -12,3 +12,10 @@ super-linter-summary.md
 .DS_Store
 elastic-operation/__pycache__/elastic_config.cpython-314.pyc
 elastic-operation/__pycache__/elastic_config.cpython-313.pyc
+elastic-operation/.ipynb_checkpoints/mapping-checkpoint.ipynb
+elastic-operation/.ipynb_checkpoints/indexing-checkpoint.ipynb
+elastic-operation/.ipynb_checkpoints/elastic_ca-checkpoint.crt
+elastic-operation/.ipynb_checkpoints/.env-checkpoint
+elastic-operation/elastic_ca.crt
+.agents/skills/12306-assistant/SKILL.md
+.agents/skills/email-summarizer/SKILL.md
