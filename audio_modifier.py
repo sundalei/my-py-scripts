@@ -29,8 +29,19 @@ try:
     flac.clear_pictures()
     flac.add_picture(picture)
 
+    metadata = {
+        "artist": "",
+        "description": "",
+        "genre": "",
+        "title": "",
+        "album": "",
+    }
+
+    for key, value in metadata.items():
+        flac[key] = value
+
     flac.save()
-    print(f"Successfully added album art")
+    print("Successfully updated metadata and added album art")
 except MutagenError as e:
     print(e)
     print(type(e))
