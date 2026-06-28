@@ -1,5 +1,5 @@
 import requests
-from elastic_config import BASE_URL, CA_CERT_PATH, PASSWORD, USERNAME
+from elastic_config import BASE_URL, PASSWORD, USERNAME, VERIFY_CERT
 
 BULK_ENDPOINT = f"{BASE_URL}/_bulk"
 
@@ -8,7 +8,6 @@ DATASET_FILE_PATH = "top-movies-kibana.txt"
 HEADERS = {"Content-Type": "application/x-ndjson"}
 
 auth = (USERNAME, PASSWORD)
-ca_cert = CA_CERT_PATH
 
 
 def read_file_in_chunks(file_path: str, line_per_chunk: int):
@@ -63,7 +62,7 @@ def run_rest_bulk_index(file_path: str):
                 headers=HEADERS,
                 data=ndjson_payload,
                 auth=auth,
-                verify=ca_cert,
+                verify=VERIFY_CERT,
             )
 
             # Check for HTTP-level errors

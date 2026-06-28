@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Using os.environ guarantees a strict 'str' type for MyPy.
-# It will automatically raise a KeyError if the variable is missing from your .env file.
+# Required settings. os.environ raises KeyError if one is missing.
 BASE_URL = os.environ["ELASTIC_BASE_URL"]
 USERNAME = os.environ["ELASTIC_USER"]
 PASSWORD = os.environ["ELASTIC_PASSWORD"]
-CA_CERT_PATH = os.environ["ELASTIC_CERT_PATH"]
 
-if USERNAME is None or PASSWORD is None:
-    raise ValueError("Missing Elastic credentials! Check your .env file.")
+# Optional CA certificate path for direct Elasticsearch TLS.
+# Behind a reverse proxy such as Caddy, Requests can use the system CA bundle.
+CA_CERT_PATH = os.getenv("ELASTIC_CERT_PATH")
+VERIFY_CERT = CA_CERT_PATH or True
