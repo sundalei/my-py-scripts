@@ -41,6 +41,7 @@ jobs:
           VALIDATE_PYTHON_RUFF: false
           FIX_PYTHON_RUFF_FORMAT: true
           FIX_PYTHON_BLACK: true
+          FIX_JUPYTER_NBQA_BLACK: true
           FIX_YAML_PRETTIER: true
           FIX_JSON_PRETTIER: true
           FIX_BIOME_FORMAT: true
