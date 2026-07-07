@@ -12,4 +12,7 @@ Run (token via env so it isn't hard-coded):
 
 import os
 
-print(os)
+# config
+VAULT_ADDR = os.getenv("VAULT_ADDR", "https://vault.sundalei.tech")
+
+print(VAULT_ADDR)
