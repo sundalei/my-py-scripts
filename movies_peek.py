@@ -19,10 +19,12 @@ VAULT_ADDR = os.getenv("VAULT_ADDR", "https://vault.sundalei.tech")
 VAULT_TOKEN = os.environ["VAULT_TOKEN"]
 KV_MOUNT = "secret"
 SECRET_PATH = "mongo-es-demo"
+MONGO_KEY = "spring.mongodb.uri"
 
 # read the Mongo URI from vault
 vault = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
 assert vault.is_authenticated(), "Vault auth failed - check VAULT_TOKEN"
 
 secret = vault.secrets.kv.v2.read_secret_version(path=SECRET_PATH, mount_point=KV_MOUNT)
-print(secret)
+mongo_uri = secret["data"]["data"][MONGO_KEY]
+print(f"Got {MONGO_KEY} from Vault (len={len(mongo_uri)})")
