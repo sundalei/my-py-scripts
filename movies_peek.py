@@ -11,6 +11,7 @@ Run (token via env so it isn't hard-coded):
 """
 
 import os
+
 import hvac
 
 # config
