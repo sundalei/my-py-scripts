@@ -42,7 +42,7 @@ try:
     if db is None:
         raise ValueError
 except (ValueError, Exception):
-    names = [n for n in client.list_database_names() if n not in ('admin', 'local', 'config')]
+    names = [n for n in client.list_database_names() if n not in ("admin", "local", "config")]
     print(f"URI has no default DB; databases found: {names}")
     db = client[names[0]]
 
