@@ -9,5 +9,7 @@ Run (token via env so it isn't hard-coded):
     export VAULT_TOKEN='hvs....'   # root token for now; scoped token later
     python movies_peek.py
 """
+
 import os
+
 print(os)
